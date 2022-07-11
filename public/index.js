@@ -1,32 +1,25 @@
 async function main() {
-  const timeChartCanvas = document.querySelector("#time-chart");
-  const highestPriceChartCanvas = document.querySelector(
-    "#highest-price-chart"
-  );
-  const averagePriceChartCanvas = document.querySelector(
-    "#average-price-chart"
+  // Fetching daily data
+  const data = await fetch(
+    "https://api.twelvedata.com/time_series?symbol=GME,MSFT,DIS,BNTX&interval=1day&format=JSON&apikey=011fa0deb1c245a1878a979e4cc62423"
   );
 
-  //   // Fetching daily data
-  //   const data = await fetch(
-  //     "https://api.twelvedata.com/time_series?symbol=GME,MSFT,DIS,BNTX&interval=1day&format=JSON&apikey=011fa0deb1c245a1878a979e4cc62423"
-  //   );
+  // Parsing promise by using json()
+  const dataParsed = await data.json();
 
-  //   // Parsing promise by using json()
-  //   const dataParsed = await data.json();
-
-  //   // destructuring variables
-  //   const { GME, MSFT, DIS, BNTX } = dataParsed;
-  //   const stocks = [GME, MSFT, DIS, BNTX];
-
-  // Using mock data for alternative to twelvedata
-  const { GME, MSFT, DIS, BNTX } = mockData;
+  // destructuring variables
+  const { GME, MSFT, DIS, BNTX } = dataParsed;
   const stocks = [GME, MSFT, DIS, BNTX];
+
+  //   // Using mock data for alternative to twelvedata
+  //   const { GME, MSFT, DIS, BNTX } = mockData;
+  //   const stocks = [GME, MSFT, DIS, BNTX];
 
   stocks.forEach((stock) => stock.values.reverse());
   console.log(stocks);
 
-  // Creating time-chart
+  // Creating time-series chart
+  const timeChartCanvas = document.querySelector("#time-chart");
   new Chart(timeChartCanvas.getContext("2d"), {
     type: "line",
     data: {
@@ -36,11 +29,16 @@ async function main() {
         data: stock.values.map((value) => parseFloat(value.high)),
         backgroundColor: getColor(stock.meta.symbol),
         borderColor: getColor(stock.meta.symbol),
+        tension: 0.2,
+        pointRadius: 0,
       })),
     },
   });
 
   // Creating highest-stock price chart
+  const highestPriceChartCanvas = document.querySelector(
+    "#highest-price-chart"
+  );
   new Chart(highestPriceChartCanvas.getContext("2d"), {
     type: "bar",
     data: {
@@ -49,6 +47,26 @@ async function main() {
         {
           label: "Highest",
           data: stocks.map((item) => getMaxValue(item.values)),
+          backgroundColor: stocks.map((stock) => getColor(stock.meta.symbol)),
+          borderColor: stocks.map((stock) => getColor(stock.meta.symbol)),
+        },
+      ],
+    },
+    s,
+  });
+
+  // Creating average stock price chart
+  const averagePriceChartCanvas = document.querySelector(
+    "#average-price-chart"
+  );
+  new Chart(averagePriceChartCanvas.getContext("2d"), {
+    type: "pie",
+    data: {
+      labels: stocks.map((stock) => stock.meta.symbol),
+      datasets: [
+        {
+          label: "Highest",
+          data: stocks.map((item) => getMeanValue(item.values)),
           backgroundColor: stocks.map((stock) => getColor(stock.meta.symbol)),
           borderColor: stocks.map((stock) => getColor(stock.meta.symbol)),
         },
@@ -80,6 +98,14 @@ function getMaxValue(stock) {
     }
   });
   return maxValue;
+}
+
+function getMeanValue(stock) {
+  let totalValue = 0;
+  stock.forEach((item) => {
+    totalValue += parseFloat(item.high);
+  });
+  return totalValue / stock.length;
 }
 
 main();
