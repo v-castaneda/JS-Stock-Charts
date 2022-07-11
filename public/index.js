@@ -1,18 +1,14 @@
 async function main() {
-  //   // Fetching daily data
-  //   const data = await fetch(
-  //     "https://api.twelvedata.com/time_series?symbol=GME,MSFT,DIS,BNTX&interval=1day&format=JSON&apikey=011fa0deb1c245a1878a979e4cc62423"
-  //   );
+  // Fetching daily data
+  const data = await fetch(
+    "https://api.twelvedata.com/time_series?symbol=GME,MSFT,DIS,BNTX&interval=1day&format=JSON&apikey=011fa0deb1c245a1878a979e4cc62423"
+  );
 
-  //   // Parsing promise by using json()
-  //   const dataParsed = await data.json();
+  // Parsing promise by using json()
+  const dataParsed = await data.json();
 
-  //   // destructuring variables
-  //   const { GME, MSFT, DIS, BNTX } = dataParsed;
-  //   const stocks = [GME, MSFT, DIS, BNTX];
-
-  // Using mock data for alternative to twelvedata
-  const { GME, MSFT, DIS, BNTX } = mockData;
+  // destructuring variables
+  const { GME, MSFT, DIS, BNTX } = dataParsed;
   const stocks = [GME, MSFT, DIS, BNTX];
 
   stocks.forEach((stock) => stock.values.reverse());
